@@ -71,9 +71,9 @@ const ListingsPage: React.FC = () => {
           + Create Listing
         </Button>
       </Box>
-      <Grid container={true} spacing={3}>
+      <Box display="grid" gridTemplateColumns="repeat(auto-fill, minmax(280px, 1fr))" gap={3}>
         {listings.map((listing) => (
-          <Grid item={true} xs={12} sm={6} md={4} key={listing.id}>
+          <Box key={listing.id}>
             <Card>
               <CardMedia
                 component="img"
@@ -103,9 +103,9 @@ const ListingsPage: React.FC = () => {
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
     </Box>
   );
 };

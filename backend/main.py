@@ -48,44 +48,40 @@ def root():
     """
 
 
-class ListingImageOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    url_full: Optional[str] = None
-    url_card: Optional[str] = None
-    url_thumb: Optional[str] = None
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
+from backend.listings import router as listings_router
+from backend.auth import router as auth_router
+from backend.database import engine
+from backend.models import Base
 
-class ListingCategoryOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    id: int
-    name: Optional[str] = None
+app = FastAPI()
 
-class ListingUserOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    id: int
-    name: Optional[str] = None
-    city: Optional[str] = None
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-class ListingOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    id: int
-    title: str
-    description: str
-    price_sek: int
-    condition: Optional[str] = None
-    city: Optional[str] = None
-    status: Optional[str] = None
-    published_at: Optional[datetime] = None
-    user_id: Optional[int] = None
-    category: Optional[ListingCategoryOut] = None
-    user: Optional[ListingUserOut] = None
-    images: List[ListingImageOut] = []
+app.include_router(listings_router)
+app.include_router(auth_router)
 
-@app.get("/listings", response_model=List[ListingOut])
-def list_listings(db: Session = Depends(get_db)):
-    q = db.query(Listing).all()
-    return q
-
+@app.get("/", response_class=HTMLResponse)
+def root():
+    return """
+    <html>
+        <head><title>Auth Test Page</title></head>
+        <body>
+            <h1>Welcome to the Auth API Test Page</h1>
+            <p>Try auth endpoints or view /docs.</p>
+        </body>
+    </html>
+    """
 
 @app.on_event("startup")
-def ensure_tables():
+def on_startup():
     Base.metadata.create_all(bind=engine)
+
