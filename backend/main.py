@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse
 from backend.models import Base
 from backend.listings import router as listings_router
 from backend.auth import router as auth_router
+from backend.marketplace import router as marketplace_router
 
 DATABASE_URL = "sqlite:///marketplace.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
@@ -25,6 +26,7 @@ app.add_middleware(
 # Include routers
 app.include_router(listings_router)
 app.include_router(auth_router)
+app.include_router(marketplace_router)
 
 @app.get("/", response_class=HTMLResponse)
 def root():

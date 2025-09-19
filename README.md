@@ -37,6 +37,41 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
+## Backend
+
+The backend is a FastAPI application located in the `backend/` directory.
+
+### Running the Backend Server
+
+1.  Navigate to the backend directory:
+    ```bash
+    cd backend
+    ```
+2.  Activate the Python virtual environment:
+    ```bash
+    source .venv/bin/activate
+    ```
+3.  Run the FastAPI server using Uvicorn:
+    ```bash
+    uvicorn main:app --reload --port 8000
+    ```
+    The API will be available at `http://localhost:8000`. You can access the interactive API documentation (Swagger UI) at `http://localhost:8000/docs`.
+
+### Running Backend Tests
+
+1.  Navigate to the backend directory:
+    ```bash
+    cd backend
+    ```
+2.  Activate the Python virtual environment:
+    ```bash
+    source .venv/bin/activate
+    ```
+3.  Run all backend tests using pytest:
+    ```bash
+    pytest
+    ```
+
 ## Learn More
 
 You can learn more in the [Vite documentation](https://vitejs.dev/guide/).

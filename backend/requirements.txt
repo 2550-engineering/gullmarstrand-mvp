@@ -1,7 +1,7 @@
-
+SQLAlchemy
+pytest
 fastapi
-sqlalchemy
-passlib[bcrypt]
-pydantic
-pydantic[email]
 uvicorn
+httpx
+passlib[bcrypt]
+pydantic[email]
