@@ -1,7 +1,6 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardMedia, Typography, Box, Chip, Button } from "@mui/material";
-import Grid from "@mui/material/Grid";
 import ListingDetail from "../ListingDetail";
 import DeliverySelection from "../DeliverySelection";
 import TextField from "@mui/material/TextField";
@@ -28,74 +27,56 @@ type Listing = {
 };
 
 const currentUser = { id: 3, name: "Gabor" };
-const sampleListings: Listing[] = [
-  {
-    id: 1,
-    title: "iPhone 13 Pro Max",
-    description: "Like new, barely used. Comes with box and charger.",
-    price_sek: 9500,
-    amount_sek: 9500,
-    condition: "like_new",
-    city: "Stockholm",
-    status: "published",
-    images: [
-      {
-        url_card: "https://placehold.co/400x300?text=iPhone+13+Pro+Max",
-        url_thumb: "https://placehold.co/100x75?text=iPhone",
-      },
-    ],
-    category: "Electronics",
-    published_at: "2025-09-18T12:00:00Z",
-    seller_id: 2,
-    seller_name: "Ekaterina",
-    sold: false,
-    isOwnListing: currentUser.id === 2,
-  },
-  {
-    id: 2,
-    title: "Sofa, 3-seater",
-    description: "Used but in good condition. Pickup only.",
-    price_sek: 1200,
-    amount_sek: 1200,
-    condition: "good",
-    city: "Göteborg",
-    status: "published",
-    images: [
-      {
-        url_card: "https://placehold.co/400x300?text=Sofa",
-        url_thumb: "https://placehold.co/100x75?text=Sofa",
-      },
-    ],
-    category: "Furniture",
-    published_at: "2025-09-17T09:30:00Z",
-    seller_id: 4,
-    seller_name: "Mirza",
-    sold: false,
-    isOwnListing: currentUser.id === 4,
-  },
-  {
-    id: 3,
-    title: "Mountain Bike",
-    description: "Needs repair, chain is broken. Cheap!",
-    price_sek: 500,
-    amount_sek: 500,
-    condition: "needs_repair",
-    city: "Malmö",
-    status: "published",
-    images: [
-      {
-        url_card: "https://placehold.co/400x300?text=Bike",
-        url_thumb: "https://placehold.co/100x75?text=Bike",
-      },
-    ],
-    category: "Sports",
-    published_at: "2025-09-16T15:45:00Z",
-    seller_id: 3,
-    seller_name: "Gabor",
-    sold: false,
-    isOwnListing: currentUser.id === 3,
-  },
-];
+
+// Dynamic listings state (replaces hardcoded sampleListings)
+// Each listing will be enriched with amount_sek + isOwnListing after fetch
+// until backend is ready, we keep an empty array and show loading / empty states
+const ListingsPage: React.FC = () => {
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        // Placeholder: replace with real API endpoint when backend is ready
+        // const res = await fetch('/api/listings');
+        // if (!res.ok) throw new Error('Failed to load listings');
+        // const data = await res.json();
+        // Map backend shape to Listing (assumed fields - adjust as needed)
+        const data: any[] = []; // empty until backend delivered
+        if (!cancelled) {
+          const mapped: Listing[] = data.map(l => ({
+            id: l.id,
+            title: l.title,
+            description: l.description,
+            price_sek: l.price_sek,
+            amount_sek: l.price_sek,
+            condition: l.condition || 'used',
+            city: l.city || '',
+            status: l.status || 'published',
+            images: (l.images || []).map((img: any) => ({ url_card: img.url_card || img.url_full || '', url_thumb: img.url_thumb || '' })),
+            category: l.category?.name || 'General',
+            published_at: l.published_at || new Date().toISOString(),
+            seller_id: l.user_id,
+            seller_name: l.user?.name,
+            sold: l.status === 'sold',
+            isOwnListing: l.user_id === currentUser.id,
+          }));
+          setListings(mapped);
+        }
+      } catch (e: any) {
+        if (!cancelled) setError(e.message || 'Unknown error');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true };
+  }, []);
 
 const conditionColor = (condition: Listing["condition"]) => {
   switch (condition) {
@@ -114,7 +95,7 @@ const conditionColor = (condition: Listing["condition"]) => {
   }
 };
 
-const ListingsPage: React.FC = () => {
+  // --- existing component state & logic ---
   const [step, setStep] = useState<number>(1);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [deliveryType, setDeliveryType] = useState<'pickup' | 'flat'>('pickup');
@@ -196,9 +177,19 @@ const ListingsPage: React.FC = () => {
         Listings
       </Typography>
       {step === 1 && (
-        <Grid container spacing={3}>
-          {sampleListings.map((listing) => (
-            <Grid item xs={12} sm={6} md={4} key={listing.id}>
+        <>
+          {loading && (
+            <Typography variant="body1" sx={{ mb: 2 }}>Loading listings...</Typography>
+          )}
+          {error && !loading && (
+            <Typography color="error" sx={{ mb: 2 }}>Failed to load listings: {error}</Typography>
+          )}
+          {!loading && !error && listings.length === 0 && (
+            <Typography variant="body2" sx={{ mb: 2 }}>No listings available.</Typography>
+          )}
+          <Box display="grid" gridTemplateColumns="repeat(auto-fill, minmax(280px, 1fr))" gap={3}>
+          {listings.map((listing) => (
+            <Box key={listing.id}>
               <Card>
                 <CardMedia
                   component="img"
@@ -255,9 +246,10 @@ const ListingsPage: React.FC = () => {
                   )}
                 </CardContent>
               </Card>
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+          </Box>
+        </>
       )}
       {step === 2 && selectedListing && (
         <Box>
