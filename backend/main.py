@@ -4,9 +4,9 @@ from sqlalchemy import create_engine
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
-from models import Base
-from listings import router as listings_router
-from auth import router as auth_router
+from backend.models import Base
+from backend.listings import router as listings_router
+from backend.auth import router as auth_router
 
 DATABASE_URL = "sqlite:///marketplace.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})

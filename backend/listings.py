@@ -2,8 +2,8 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from models import Listing, ListingImage
-from database import get_db
+from backend.models import Listing, ListingImage
+from backend.database import get_db
 
 # Pydantic schemas (should ideally be in a separate schemas.py, but kept here for now)
 class ListingImageOut(BaseModel):

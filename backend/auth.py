@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from passlib.context import CryptContext
-from models import User, Base
-from database import get_db
+from backend.models import User, Base
+from backend.database import get_db
 from datetime import datetime, timedelta
 import secrets
 
