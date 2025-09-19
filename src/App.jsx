@@ -1,7 +1,7 @@
-
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ListingsPage from "./pages/ListingsPage";
+import CreateListingPage from "../frontend/src/pages/CreateListingPage"; // <-- Add this import
 import './App.css';
 
 
@@ -33,6 +33,7 @@ function App() {
           </div>
         } />
         <Route path="/listings" element={<ListingsPage />} />
+        <Route path="/listings/new" element={<CreateListingPage />} /> {/* <-- Add this line */}
       </Routes>
     </Router>
   );

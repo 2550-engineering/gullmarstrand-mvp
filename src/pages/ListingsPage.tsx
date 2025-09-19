@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
+  Button,
   Card,
   CardContent,
   CardMedia,
@@ -31,6 +33,7 @@ const ListingsPage: React.FC = () => {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getListings()
@@ -49,9 +52,25 @@ const ListingsPage: React.FC = () => {
 
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Listings
-      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Typography variant="h4" gutterBottom>
+          Listings
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate("/listings/new")}
+        >
+          + Create Listing
+        </Button>
+      </Box>
       <Grid container={true} spacing={3}>
         {listings.map((listing) => (
           <Grid item={true} xs={12} sm={6} md={4} key={listing.id}>
