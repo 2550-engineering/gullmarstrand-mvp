@@ -1,7 +1,10 @@
+import RegisterPage from "./pages/RegisterPage";
+  <Route path="/register" element={<RegisterPage />} />
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ListingsPage from "./pages/ListingsPage";
 import CreateListingPage from "../frontend/src/pages/CreateListingPage"; // <-- Add this import
+import LoginPage from "./pages/LoginPage";
 import './App.css';
 
 
@@ -34,6 +37,8 @@ function App() {
         } />
         <Route path="/listings" element={<ListingsPage />} />
         <Route path="/listings/new" element={<CreateListingPage />} /> {/* <-- Add this line */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
       </Routes>
     </Router>
   );
