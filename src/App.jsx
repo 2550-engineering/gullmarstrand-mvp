@@ -47,6 +47,7 @@ const listingsWithFlag = demoListings.map(listing => ({
   isOwnListing: currentUser.id === listing.seller_id,
 }));
 
+
 function MarketplaceFlow() {
   const [step, setStep] = useState(1);
   const [selectedListing, setSelectedListing] = useState(null);
