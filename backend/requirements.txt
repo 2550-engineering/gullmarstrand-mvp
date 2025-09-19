@@ -1,6 +1,4 @@
-Flask
 SQLAlchemy
-Flask-Swagger-UI
 pytest
 fastapi
 uvicorn

@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from backend.auth import router as auth_router
+from backend.marketplace import router as marketplace_router
 
 app = FastAPI()
 app.include_router(auth_router)
+app.include_router(marketplace_router)
 
 @app.get("/", response_class=HTMLResponse)
 def root():
