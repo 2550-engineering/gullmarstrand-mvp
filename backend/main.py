@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException, Depends
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import Session, sessionmaker, joinedload
 from sqlalchemy import create_engine
 from pydantic import BaseModel, Field
 from typing import List, Optional
-from models import Base, Listing
+from models import Base, Listing, ListingImage
 from fastapi.middleware.cors import CORSMiddleware
 
 DATABASE_URL = "sqlite:///marketplace.db"
@@ -12,16 +12,24 @@ SessionLocal = sessionmaker(bind=engine)
 
 app = FastAPI()
 
-# Add this after creating the FastAPI app
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Or specify your frontend URL, e.g. ["http://localhost:5173"]
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Pydantic schemas
+class ListingImageOut(BaseModel):
+    url_full: Optional[str]
+    url_card: Optional[str]
+    url_thumb: Optional[str]
+    blurhash: Optional[str]
+
+    class Config:
+        orm_mode = True
+
 class ListingBase(BaseModel):
     title: str = Field(..., max_length=120)
     description: str = Field(..., max_length=4000)
@@ -44,11 +52,11 @@ class ListingUpdate(ListingBase):
 class ListingOut(ListingBase):
     id: int
     user_id: int
+    images: List[ListingImageOut] = []
 
     class Config:
         orm_mode = True
 
-# Dependency
 def get_db():
     db = SessionLocal()
     try:
@@ -56,15 +64,14 @@ def get_db():
     finally:
         db.close()
 
-# CRUD endpoints
-
 @app.get("/listings/", response_model=List[ListingOut])
 def read_listings(skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
-    return db.query(Listing).offset(skip).limit(limit).all()
+    listings = db.query(Listing).options(joinedload(Listing.images)).offset(skip).limit(limit).all()
+    return listings
 
 @app.get("/listings/{listing_id}", response_model=ListingOut)
 def read_listing(listing_id: int, db: Session = Depends(get_db)):
-    listing = db.query(Listing).filter(Listing.id == listing_id).first()
+    listing = db.query(Listing).options(joinedload(Listing.images)).filter(Listing.id == listing_id).first()
     if not listing:
         raise HTTPException(status_code=404, detail="Listing not found")
     return listing

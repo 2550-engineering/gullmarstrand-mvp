@@ -35,13 +35,7 @@ const ListingsPage: React.FC = () => {
   useEffect(() => {
     getListings()
       .then((data) => {
-        const mapped = data.map((item: any) => ({
-          ...item,
-          images: item.images || [{ url_card: "", url_thumb: "" }],
-          category: item.category || "",
-          published_at: item.published_at || new Date().toISOString(),
-        }));
-        setListings(mapped);
+        setListings(data);
         setLoading(false);
       })
       .catch(() => {
@@ -66,7 +60,7 @@ const ListingsPage: React.FC = () => {
                 component="img"
                 height="180"
                 image={
-                  listing.images && listing.images[0]?.url_card
+                  listing.images && listing.images.length > 0 && listing.images[0].url_card
                     ? listing.images[0].url_card
                     : "https://via.placeholder.com/300x180?text=No+Image"
                 }
@@ -79,19 +73,14 @@ const ListingsPage: React.FC = () => {
                 </Typography>
                 <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
                   <Chip
-                    label={listing.condition.replace("_", " ")}
+                    label={listing.condition?.replace("_", " ")}
                     color={conditionColor(listing.condition)}
                     size="small"
                   />
-                  <Chip label={listing.category} size="small" />
                   <Chip label={listing.city} size="small" />
                 </Box>
                 <Typography variant="subtitle1" color="primary">
                   {listing.price_sek} SEK
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Published:{" "}
-                  {new Date(listing.published_at).toLocaleDateString()}
                 </Typography>
               </CardContent>
             </Card>
