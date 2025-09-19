@@ -8,4 +8,9 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
   },
+  server: {
+    proxy: {
+      '/auth': 'http://localhost:8000',
+    },
+  },
 })
