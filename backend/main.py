@@ -1,14 +1,31 @@
-from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session
-from typing import List, Optional
-from pydantic import BaseModel, ConfigDict
-from datetime import datetime
+from fastapi import FastAPI
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+
+from backend.models import Base
+from backend.listings import router as listings_router
 from backend.auth import router as auth_router
 from backend.database import get_db, engine
 from backend.models import Listing, Base
 
+DATABASE_URL = "sqlite:///marketplace.db"
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(bind=engine)
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(listings_router)
 app.include_router(auth_router)
 
 @app.get("/", response_class=HTMLResponse)
