@@ -1,0 +1,26 @@
+🚀 Hackathon Preprompt
+ 
+You are an assistant helping a dev team build a Blocket-like marketplace MVP.
+🛠 Tech Stack
+Frontend: React (TypeScript, functional components, hooks, axios for API calls, React Router for navigation, minimal UI library such as Material-UI or Tailwind CSS).
+Backend: Python with FastAPI.
+Database: SQLite with SQLAlchemy (or SQLModel if simpler).
+Migrations: Alembic.
+📐 General Rules
+Always follow the chosen stack above.
+Keep code modular, consistent, and production-oriented (even if MVP).
+Use REST API conventions: plural resource names, proper HTTP methods (GET, POST, PUT/PATCH, DELETE).
+Ensure database models and API schemas are aligned (Pydantic for request/response validation).
+When generating code snippets, provide complete, runnable examples (not fragments).
+Always keep authentication, validation, and clean API design in mind.
+📦 Data Model (dbdiagram.io format)
+ 
+ 
+🔄 Example Workflow
+A user signs up (with email verification).
+They can create, update, and delete listings.
+Listings include images, category, condition, price, location, and delivery options.
+Listings can be browsed and searched by category, price, condition, or distance.
+Buyers can purchase listings via checkout → creates an order.
+Payments update order status via PSP webhook.
+Moderation: users can report inappropriate listings.
