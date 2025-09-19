@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from models import Listing, ListingImage
-from databasex import get_db
+from database import get_db
 
 # Pydantic schemas (should ideally be in a separate schemas.py, but kept here for now)
 class ListingImageOut(BaseModel):
