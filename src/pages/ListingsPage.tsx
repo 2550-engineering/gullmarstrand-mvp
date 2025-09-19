@@ -40,12 +40,9 @@ const ListingsPage: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        // Placeholder: replace with real API endpoint when backend is ready
-        // const res = await fetch('/api/listings');
-        // if (!res.ok) throw new Error('Failed to load listings');
-        // const data = await res.json();
-        // Map backend shape to Listing (assumed fields - adjust as needed)
-        const data: any[] = []; // empty until backend delivered
+  const res = await fetch('/api/listings');
+  if (!res.ok) throw new Error('Failed to load listings');
+  const data = await res.json();
         if (!cancelled) {
           const mapped: Listing[] = data.map(l => ({
             id: l.id,

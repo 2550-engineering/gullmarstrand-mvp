@@ -1,6 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+from typing import List, Optional
+from pydantic import BaseModel, ConfigDict
+from datetime import datetime
 from fastapi.responses import HTMLResponse
 from backend.auth import router as auth_router
+from backend.database import get_db, engine
+from backend.models import Listing, Base
 
 app = FastAPI()
 app.include_router(auth_router)
@@ -23,3 +29,46 @@ def root():
         </body>
     </html>
     """
+
+
+class ListingImageOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    url_full: Optional[str] = None
+    url_card: Optional[str] = None
+    url_thumb: Optional[str] = None
+
+class ListingCategoryOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    name: Optional[str] = None
+
+class ListingUserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    name: Optional[str] = None
+    city: Optional[str] = None
+
+class ListingOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    title: str
+    description: str
+    price_sek: int
+    condition: Optional[str] = None
+    city: Optional[str] = None
+    status: Optional[str] = None
+    published_at: Optional[datetime] = None
+    user_id: Optional[int] = None
+    category: Optional[ListingCategoryOut] = None
+    user: Optional[ListingUserOut] = None
+    images: List[ListingImageOut] = []
+
+@app.get("/listings", response_model=List[ListingOut])
+def list_listings(db: Session = Depends(get_db)):
+    q = db.query(Listing).all()
+    return q
+
+
+@app.on_event("startup")
+def ensure_tables():
+    Base.metadata.create_all(bind=engine)
