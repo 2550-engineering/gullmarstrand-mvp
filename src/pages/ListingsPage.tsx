@@ -23,10 +23,8 @@ type Listing = {
   seller_name?: string;
   sold?: boolean;
   amount_sek?: number;
-  isOwnListing?: boolean;
+  isOwnListing?: boolean; // to be provided by backend in future
 };
-
-const currentUser = { id: 3, name: "Gabor" };
 
 // Dynamic listings state (replaces hardcoded sampleListings)
 // Each listing will be enriched with amount_sek + isOwnListing after fetch
@@ -64,7 +62,7 @@ const ListingsPage: React.FC = () => {
             seller_id: l.user_id,
             seller_name: l.user?.name,
             sold: l.status === 'sold',
-            isOwnListing: l.user_id === currentUser.id,
+            isOwnListing: l.isOwnListing, // backend can set this relative to auth user
           }));
           setListings(mapped);
         }
@@ -143,7 +141,7 @@ const conditionColor = (condition: Listing["condition"]) => {
   function handlePay() {
     if (!selectedListing) return;
     const order = {
-      buyer_id: currentUser.id,
+      // buyer_id will come from authenticated session/user context once integrated
       listing_id: selectedListing.id,
       seller_id: selectedListing.seller_id,
       amount_sek: selectedListing.amount_sek,
