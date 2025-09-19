@@ -7,6 +7,7 @@ node_modules/
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyc
 
 # SQLite database files
 *.db
