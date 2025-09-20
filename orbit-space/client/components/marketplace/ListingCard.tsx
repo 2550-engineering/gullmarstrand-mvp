@@ -10,7 +10,18 @@ export function ListingCard({ item }: { item: Listing }) {
   const { isFavorite, toggleFavorite } = useFavorites();
 
   const handleAdd = () => {
-    addItem({ id: item.id, title: item.title, price: item.price, image: item.image }, 1);
+    // Use price_sek and first image for cart
+    addItem(
+      {
+        id: item.id,
+        title: item.title,
+        price: item.price_sek,
+        image: item.images && item.images[0]?.url_card
+          ? item.images[0].url_card
+          : "https://via.placeholder.com/300x180?text=No+Image",
+      },
+      1
+    );
   };
 
   const fav = isFavorite(item.id);
@@ -19,7 +30,11 @@ export function ListingCard({ item }: { item: Listing }) {
     <Card className="overflow-hidden bg-card/80 backdrop-blur-sm border-border/60">
       <div className="relative aspect-[4/3] w-full overflow-hidden">
         <img
-          src={item.image}
+          src={
+            item.images && item.images[0]?.url_card
+              ? item.images[0].url_card
+              : "https://via.placeholder.com/300x180?text=No+Image"
+          }
           alt={item.title}
           className="h-full w-full object-cover transition-transform duration-300 will-change-transform hover:scale-105"
           loading="lazy"
@@ -38,14 +53,24 @@ export function ListingCard({ item }: { item: Listing }) {
           <div>
             <h3 className="text-base font-semibold leading-tight">{item.title}</h3>
             <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="inline-flex items-center gap-1"><Star className="h-4 w-4 text-primary" aria-hidden />{item.rating.toFixed(1)}</span>
+              {/* If you want to show a rating, you can calculate or fetch it */}
+              <span className="inline-flex items-center gap-1">
+                <Star className="h-4 w-4 text-primary" aria-hidden />
+                {/* No rating in backend, so you can remove or replace this */}
+                N/A
+              </span>
               <span aria-hidden>•</span>
-              <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" aria-hidden />{item.distance} km</span>
+              <span className="inline-flex items-center gap-1">
+                <MapPin className="h-4 w-4" aria-hidden />
+                {item.city ?? "Unknown"}
+              </span>
             </div>
-            <div className="mt-2 text-sm text-muted-foreground">{item.location} • {item.category}</div>
+            <div className="mt-2 text-sm text-muted-foreground">
+              {item.city} • {item.condition}
+            </div>
           </div>
           <div className="text-right">
-            <div className="text-lg font-semibold">${item.price.toFixed(0)}</div>
+            <div className="text-lg font-semibold">{item.price_sek} SEK</div>
           </div>
         </div>
         <div className="mt-4">
