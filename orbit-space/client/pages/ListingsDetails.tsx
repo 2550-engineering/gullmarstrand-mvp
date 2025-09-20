@@ -3,11 +3,13 @@ import { useParams, Link } from "react-router-dom";
 import { getListing, Listing } from "@/lib/listings";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useCart } from "@/context/CartContext";
 
 export default function ListingDetails() {
   const { id } = useParams<{ id: string }>();
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
+  const { addItem } = useCart();
 
   useEffect(() => {
     if (id) {
@@ -19,6 +21,21 @@ export default function ListingDetails() {
 
   if (loading) return <div className="container py-10">Loading...</div>;
   if (!listing) return <div className="container py-10">Listing not found.</div>;
+
+  const handleAddToCart = () => {
+    addItem(
+      {
+        id: listing.id,
+        title: listing.title,
+        price: listing.price_sek,
+        image:
+          listing.images && listing.images[0]?.url_card
+            ? listing.images[0].url_card
+            : "https://via.placeholder.com/300x180?text=No+Image",
+      },
+      1
+    );
+  };
 
   return (
     <section className="container py-10">
@@ -46,7 +63,9 @@ export default function ListingDetails() {
                 {listing.condition}
               </span>
             </div>
-            {/* Add more listing details as needed */}
+            <Button onClick={handleAddToCart} className="mt-4 w-full md:w-auto">
+              Add to basket
+            </Button>
           </div>
         </div>
       </Card>
