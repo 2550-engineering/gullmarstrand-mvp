@@ -3,13 +3,14 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+import os
 
 from backend.models import Base
 from backend.listings import router as listings_router
 from backend.auth import router as auth_router
 from backend.marketplace import router as marketplace_router
 
-DATABASE_URL = "sqlite:///marketplace.db"
+DATABASE_URL = "sqlite:///./marketplace.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(bind=engine)
 

@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import {
   Box,
   Button,
@@ -13,11 +14,22 @@ import {
   CircularProgress,
   MobileStepper,
   IconButton,
-  Chip,
 } from "@mui/material";
-import { PhotoCamera, RotateLeft, RotateRight, Delete } from "@mui/icons-material";
+import { PhotoCamera, Delete } from "@mui/icons-material";
 import { createListing, Listing } from "../api/listings";
 import Compressor from "compressorjs";
+
+// Utility function to create a URL-friendly slug
+const createSlug = (title: string) => {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[åä]/g, "a")
+    .replace(/ö/g, "o")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+};
 
 const categories = [
   { id: 1, name: "Electronics" },
@@ -36,12 +48,15 @@ const steps = [
   "Publish",
 ];
 
-type Draft = Partial<Omit<Listing, "id" | "user_id" | "published_at" | "images" | "category">> & {
+type Draft = Partial<Omit<Listing, "id" | "published_at" | "images" | "category">> & {
   images: File[];
   negotiable?: boolean;
   stock?: number;
   delivery_option?: "shipping" | "pickup";
   shipping_regions?: string;
+  user_id?: number;
+  slug?: string;
+  canonical_url?: string;
 };
 
 const initialDraft: Draft = {
@@ -71,12 +86,19 @@ function loadDraftFromLocalStorage(): Draft {
 }
 
 const CreateListingPage: React.FC = () => {
+  const { user } = useAuth();
   const [activeStep, setActiveStep] = useState(0);
   const [draft, setDraft] = useState<Draft>(loadDraftFromLocalStorage());
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
   const [published, setPublished] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      setDraft((d) => ({ ...d, user_id: user.id }));
+    }
+  }, [user]);
 
   // Auto-save draft on change
   React.useEffect(() => {
@@ -144,14 +166,28 @@ const CreateListingPage: React.FC = () => {
   // Publish
   async function handlePublish() {
     if (!validateStep(steps.length - 1)) return;
+    if (!draft.user_id) {
+      setErrors({ publish: "You must be logged in to publish a listing." });
+      return;
+    }
     setLoading(true);
     try {
-      // TODO: Upload images to backend and get URLs
-      // For MVP, skip image upload and just send listing data
+      const generatedSlug = createSlug(draft.title || "");
+      const generatedCanonicalUrl = `/listings/${generatedSlug}`;
+
       const payload = {
-        ...draft,
-        images: [], // handle image upload in backend
+        user_id: draft.user_id,
+        title: draft.title,
+        description: draft.description,
+        price_sek: draft.price_sek,
+        condition: draft.condition,
+        category_id: draft.category_id,
+        city: draft.city,
+        latitude: draft.latitude,
+        longitude: draft.longitude,
         status: "published",
+        slug: generatedSlug,
+        canonical_url: generatedCanonicalUrl,
       };
       await createListing(payload as any);
       setPublished(true);

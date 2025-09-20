@@ -15,6 +15,7 @@ class User(Base):
     name = Column(String)
     city = Column(String)
     avatar_url = Column(String)
+    token = Column(String, unique=True, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
     
     listings = relationship('Listing', back_populates='user')
