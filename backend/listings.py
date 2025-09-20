@@ -1,50 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session, joinedload
-from typing import List, Optional
-from pydantic import BaseModel, Field
+from typing import List
 from datetime import datetime
 from backend.models import Listing, ListingImage
 from backend.database import get_db
-
-# Pydantic schemas (should ideally be in a separate schemas.py, but kept here for now)
-class ListingImageOut(BaseModel):
-    url_full: Optional[str]
-    url_card: Optional[str]
-    url_thumb: Optional[str]
-    blurhash: Optional[str]
-
-    class Config:
-        from_attributes = True
-
-class ListingBase(BaseModel):
-    title: str = Field(..., max_length=120)
-    description: str = Field(..., max_length=4000)
-    price_sek: int
-    condition: Optional[str]
-    category_id: Optional[int]
-    city: Optional[str]
-    latitude: Optional[float]
-    longitude: Optional[float]
-    status: Optional[str]
-    slug: Optional[str]
-    canonical_url: Optional[str]
-
-class ListingCreate(ListingBase):
-    user_id: int
-
-class ListingUpdate(ListingBase):
-    pass
-
-class ListingOut(ListingBase):
-    id: int
-    user_id: int
-    published_at: Optional[datetime] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-    images: List[ListingImageOut] = []
-
-    class Config:
-        from_attributes = True
+from backend.schemas import ListingCreate, ListingUpdate, ListingOut  # <-- import your schemas
 
 router = APIRouter(prefix="/listings", tags=["listings"])
 
@@ -62,9 +22,17 @@ def read_listing(listing_id: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=ListingOut, status_code=201)
 def create_listing(listing: ListingCreate, db: Session = Depends(get_db)):
-    db_listing = Listing(**listing.dict())
+    # Exclude images from the dict used to create the Listing
+    db_listing = Listing(**listing.dict(exclude={"images"}))
     db.add(db_listing)
     db.commit()
+    db.refresh(db_listing)
+    # Save images if provided
+    if listing.images:
+        for img in listing.images:
+            db_img = ListingImage(listing_id=db_listing.id, **img.dict())
+            db.add(db_img)
+        db.commit()
     db.refresh(db_listing)
     return db_listing
 
