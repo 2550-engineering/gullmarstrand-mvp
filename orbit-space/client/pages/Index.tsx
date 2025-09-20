@@ -36,10 +36,10 @@ export default function Index() {
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3 md:gap-4">
-            <img className="rounded-xl object-cover aspect-[3/4]" src="https://images.unsplash.com/photo-1616486780398-245cb302ba3f?q=80&w=1200&auto=format&fit=crop" alt="Neutral ceramics and decor" />
-            <img className="rounded-xl object-cover aspect-square md:row-span-2" src="https://images.unsplash.com/photo-1617184072768-6d8aa6cb25d7?q=80&w=1200&auto=format&fit=crop" alt="Minimal home interior" />
-            <img className="rounded-xl object-cover aspect-square" src="https://images.unsplash.com/photo-1612423284934-2850b5a9f59e?q=80&w=1200&auto=format&fit=crop" alt="Soft orange apparel" />
-            <img className="rounded-xl object-cover aspect-[4/5]" src="https://images.unsplash.com/photo-1608063702693-c0a242460bb1?q=80&w=1200&auto=format&fit=crop" alt="Beige lifestyle products" />
+            <img className="rounded-xl object-cover aspect-[3/4]" src="https://m.media-amazon.com/images/I/714zxCaZ76L.jpg" alt="Neutral ceramics and decor" />
+            <img className="rounded-xl object-cover aspect-square md:row-span-2" src="https://www.mydomaine.com/thmb/YZclp57C-ub1Mp3bskbkrgk2VQ4=/1024x0/filters:no_upscale():strip_icc()/af1be3_3075c14ccd2b461aaa9f8b3bc4e1c5e3_mv2-56f748ca98b44c8b861fa0a01d5bc504.jpeg" alt="Minimal home interior" />
+            <img className="rounded-xl object-cover aspect-square" src="https://media.benjaminmoore.com/WebServices/prod/cdp/392x490/orange-paint-027-orange-appeal-124-rgb.jpg" alt="Soft orange apparel" />
+            <img className="rounded-xl object-cover aspect-[4/5]" src="https://assets.bolia.com/cdn-cgi/image/fit=cover,width=500,format=auto,height=500,quality=81/globalassets/media/4.-collections/fy24/miljo-fy24ss/home-accessories--lamps/lenya-tulip-soft-collection-coast-rheolog_ss24.jpg?v=1064038546" alt="Beige lifestyle products" />
           </div>
         </div>
       </section>
