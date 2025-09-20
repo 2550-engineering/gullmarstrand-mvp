@@ -6,10 +6,10 @@ import {
   CardContent,
   CardMedia,
   Typography,
-  Grid,
   Box,
   Chip,
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import { getListings, Listing } from "../../frontend/src/api/listings";
 
 const conditionColor = (condition: Listing["condition"]) => {
@@ -63,17 +63,27 @@ const ListingsPage: React.FC = () => {
         <Typography variant="h4" gutterBottom>
           Listings
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => navigate("/listings/new")}
-        >
-          + Create Listing
-        </Button>
+        <Box>
+          <Button
+            variant="outlined"
+            color="secondary"
+            sx={{ mr: 2 }}
+            onClick={() => navigate("/profile")}
+          >
+            Profile
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate("/listings/new")}
+          >
+            + Create Listing
+          </Button>
+        </Box>
       </Box>
-      <Grid container={true} spacing={3}>
+  <Grid container spacing={3}>
         {listings.map((listing) => (
-          <Grid item={true} xs={12} sm={6} md={4} key={listing.id}>
+          <Grid item xs={12} sm={6} md={4} key={listing.id}>
             <Card>
               <CardMedia
                 component="img"
@@ -87,7 +97,11 @@ const ListingsPage: React.FC = () => {
               />
               <CardContent>
                 <Typography variant="h6">{listing.title}</Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  gutterBottom
+                >
                   {listing.description.slice(0, 80)}...
                 </Typography>
                 <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
