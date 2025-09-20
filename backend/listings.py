@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from pydantic import BaseModel, Field
+from datetime import datetime
 from backend.models import Listing, ListingImage
 from backend.database import get_db
 
@@ -13,7 +14,7 @@ class ListingImageOut(BaseModel):
     blurhash: Optional[str]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ListingBase(BaseModel):
     title: str = Field(..., max_length=120)
@@ -37,10 +38,13 @@ class ListingUpdate(ListingBase):
 class ListingOut(ListingBase):
     id: int
     user_id: int
+    published_at: Optional[datetime] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     images: List[ListingImageOut] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 router = APIRouter(prefix="/listings", tags=["listings"])
 

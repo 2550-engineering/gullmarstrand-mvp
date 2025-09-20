@@ -53,7 +53,7 @@ The backend is a FastAPI application located in the `backend/` directory.
     ```
 3.  Run the FastAPI server using Uvicorn:
     ```bash
-    uvicorn main:app --reload --port 8000
+    PYTHONPATH=../ uvicorn main:app --reload --port 8000
     ```
     The API will be available at `http://localhost:8000`. You can access the interactive API documentation (Swagger UI) at `http://localhost:8000/docs`.
 
