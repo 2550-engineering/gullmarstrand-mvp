@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from backend.listings import router as listings_router
 from backend.auth import router as auth_router
+from backend.marketplace import router as marketplace_router
 from backend.database import engine
 from backend.models import Base
 
@@ -18,6 +19,7 @@ app.add_middleware(
 
 app.include_router(listings_router)
 app.include_router(auth_router)
+app.include_router(marketplace_router)
 
 @app.get("/", response_class=HTMLResponse)
 def root():
