@@ -1,7 +1,6 @@
-import { useMemo, useState } from "react";
-import { LISTINGS, Listing } from "@/lib/listings";
+import { useMemo, useState, useEffect } from "react";
+import { getListings, Listing } from "@/lib/listings"; // <-- Use your API client
 import { useSearchParams } from "react-router-dom";
-import { useEffect } from "react";
 import { FilterBar, Filters } from "@/components/marketplace/FilterBar";
 import { ListingCard } from "@/components/marketplace/ListingCard";
 
@@ -14,6 +13,18 @@ export default function Shop() {
     minRating: 3.5,
     maxDistance: 25,
   });
+
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getListings()
+      .then((data) => {
+        setListings(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     const cat = searchParams.get("category");
@@ -39,19 +50,21 @@ export default function Shop() {
   }, [filters.category, setSearchParams]);
 
   const results = useMemo(() => {
-    return LISTINGS.filter((l) => {
-      if (filters.category !== "All" && l.category !== filters.category) return false;
-      if (l.price > filters.maxPrice) return false;
-      if (l.rating < filters.minRating) return false;
-      if (l.distance > filters.maxDistance) return false;
+    // You can still filter client-side if you want
+    return listings.filter((l) => {
+      if (filters.category !== "All" && l.category_id !== undefined && String(l.category_id) !== filters.category) return false;
+      if (l.price_sek > filters.maxPrice) return false;
+      // Add more filters as needed
       if (filters.q) {
         const q = filters.q.toLowerCase();
-        const text = `${l.title} ${l.location} ${l.category}`.toLowerCase();
+        const text = `${l.title} ${l.city}`.toLowerCase();
         if (!text.includes(q)) return false;
       }
       return true;
     });
-  }, [filters]);
+  }, [filters, listings]);
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <section className="container py-10">

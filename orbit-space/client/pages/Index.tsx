@@ -1,10 +1,21 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { LISTINGS } from "@/lib/listings";
+import { getListings, Listing } from "@/lib/listings";
 import { ListingCard } from "@/components/marketplace/ListingCard";
 
 export default function Index() {
-  const featured = LISTINGS.slice(0, 8);
+  const [featured, setFeatured] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getListings()
+      .then((data) => {
+        setFeatured(data.slice(0, 8)); // Show first 8 as featured
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   return (
     <>
@@ -43,12 +54,15 @@ export default function Index() {
           <Button asChild variant="link"><Link to="/shop">View all</Link></Button>
         </div>
         <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-          {featured.map((item) => (
-            <ListingCard key={item.id} item={item} />
-          ))}
+          {loading ? (
+            <div>Loading...</div>
+          ) : (
+            featured.map((item) => (
+              <ListingCard key={item.id} item={item} />
+            ))
+          )}
         </div>
       </section>
-
     </>
   );
 }
