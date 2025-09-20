@@ -57,6 +57,8 @@ The backend is a FastAPI application located in the `backend/` directory.
     ```
     The API will be available at `http://localhost:8000`. You can access the interactive API documentation (Swagger UI) at `http://localhost:8000/docs`.
 
+    **Note:** The application is now configured to automatically manage the database file within the `backend` directory. This ensures that the database is always found, regardless of the directory from which the server is run.
+
 ### Running Backend Tests
 
 1.  Navigate to the backend directory:

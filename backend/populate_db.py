@@ -1,9 +1,12 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models import Base, User, Category, Listing, ListingImage, ListingReport, Order
 from datetime import datetime
+from auth import pwd_context
 
-engine = create_engine("sqlite:///marketplace.db")
+DATABASE_FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "marketplace.db"))
+engine = create_engine(f"sqlite:///{DATABASE_FILE_PATH}")
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -11,7 +14,7 @@ def main():
     # Create example users
     user1 = User(
         email="alice@example.com",
-        password_hash="hashed_pw1",
+        password_hash=pwd_context.hash("password"),
         email_verified=True,
         name="Alice",
         city="Gothenburg",
@@ -19,7 +22,7 @@ def main():
     )
     user2 = User(
         email="bob@example.com",
-        password_hash="hashed_pw2",
+        password_hash=pwd_context.hash("password"),
         email_verified=False,
         name="Bob",
         city="Stockholm",

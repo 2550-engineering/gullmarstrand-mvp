@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from passlib.context import CryptContext
@@ -10,6 +11,7 @@ import secrets
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 # In-memory store for email verification tokens (replace with persistent store in production)
 verification_tokens = {}
@@ -35,6 +37,26 @@ class VerifyEmailRequest(BaseModel):
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
 
+class UserResponse(BaseModel):
+    id: int
+    email: EmailStr
+    name: str
+    city: str
+    avatar_url: str | None = None
+
+    class Config:
+        orm_mode = True
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.token == token).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
+
 @router.post("/register")
 def register(data: RegisterRequest, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == data.email).first():
@@ -57,8 +79,11 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     if not user.email_verified:
         raise HTTPException(status_code=403, detail="Email not verified")
-    # In production, generate JWT here
+    
     token = secrets.token_urlsafe(32)
+    user.token = token
+    db.commit()
+    
     return TokenResponse(access_token=token)
 
 @router.post("/verify-email")
@@ -79,3 +104,7 @@ def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     # In production, send password reset email here
     return {"msg": "Password reset instructions sent (not implemented in MVP)"}
+
+@router.get("/me", response_model=UserResponse)
+def read_users_me(current_user: User = Depends(get_current_user)):
+    return current_user
