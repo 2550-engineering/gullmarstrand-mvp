@@ -1,11 +1,17 @@
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+
+from backend.models import Base
 from backend.listings import router as listings_router
 from backend.auth import router as auth_router
 from backend.marketplace import router as marketplace_router
-from backend.database import engine
-from backend.models import Base
+
+DATABASE_URL = "sqlite:///marketplace.db"
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(bind=engine)
 
 app = FastAPI()
 
@@ -17,6 +23,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include routers
 app.include_router(listings_router)
 app.include_router(auth_router)
 app.include_router(marketplace_router)
@@ -36,4 +43,3 @@ def root():
 @app.on_event("startup")
 def on_startup():
     Base.metadata.create_all(bind=engine)
-
