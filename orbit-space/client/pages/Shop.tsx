@@ -4,12 +4,21 @@ import { useSearchParams } from "react-router-dom";
 import { FilterBar, Filters } from "@/components/marketplace/FilterBar";
 import { ListingCard } from "@/components/marketplace/ListingCard";
 
+const CATEGORY_MAP: Record<string, number> = {
+  Fashion: 1,
+  Home: 2,
+  Tech: 3,
+  Beauty: 4,
+  Outdoors: 5,
+  // ...etc
+};
+
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState<Filters>({
     q: "",
     category: "All",
-    maxPrice: 250,
+    maxPrice: 10000, // or Infinity
     minRating: 3.5,
     maxDistance: 25,
   });
@@ -21,6 +30,9 @@ export default function Shop() {
     getListings()
       .then((data) => {
         setListings(data);
+        // Set maxPrice to the highest price in your data
+        const max = Math.max(...data.map(l => l.price_sek));
+        setFilters(f => ({ ...f, maxPrice: max }));
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -50,11 +62,14 @@ export default function Shop() {
   }, [filters.category, setSearchParams]);
 
   const results = useMemo(() => {
-    // You can still filter client-side if you want
-    return listings.filter((l) => {
-      if (filters.category !== "All" && l.category_id !== undefined && String(l.category_id) !== filters.category) return false;
-      if (l.price_sek > filters.maxPrice) return false;
-      // Add more filters as needed
+    const filtered = listings.filter((l) => {
+      if (
+        filters.category !== "All" &&
+        l.category_id !== undefined &&
+        l.category_id !== CATEGORY_MAP[filters.category]
+      )
+        return false;
+      if (l.price_sek > filters.maxPrice) return false; // <-- comment this out
       if (filters.q) {
         const q = filters.q.toLowerCase();
         const text = `${l.title} ${l.city}`.toLowerCase();
@@ -62,6 +77,8 @@ export default function Shop() {
       }
       return true;
     });
+    console.log("Filtered results:", filtered);
+    return filtered;
   }, [filters, listings]);
 
   if (loading) return <div>Loading...</div>;

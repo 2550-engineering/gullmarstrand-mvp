@@ -47,7 +47,7 @@ export function FilterBar({ value, onChange }: { value: Filters; onChange: (f: F
           value={[value.maxPrice]}
           onValueChange={([v]) => onChange({ ...value, maxPrice: v })}
           min={10}
-          max={300}
+          max={10000}
           step={1}
           aria-label="Max price"
         />
