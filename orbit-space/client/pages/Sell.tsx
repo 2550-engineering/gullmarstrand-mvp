@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import PhotoUploader, { UploadedImage } from "@/components/marketplace/PhotoUploader";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,11 +6,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CATEGORIES } from "@/lib/listings";
+import { CATEGORIES, createListing } from "@/lib/listings";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Sell() {
-  const [images, setImages] = useState<UploadedImage[]>([]);
+  // Remove images state
+  const [imageUrl, setImageUrl] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<string>(CATEGORIES[0]);
@@ -23,8 +23,14 @@ export default function Sell() {
   const { toast } = useToast();
 
   const canPublish = useMemo(() => {
-    return images.length > 0 && title.trim().length > 2 && category && (manualLocation || coords) && (!price || !isNaN(Number(price)));
-  }, [images, title, category, manualLocation, coords, price]);
+    return (
+      imageUrl.trim().length > 5 &&
+      title.trim().length > 2 &&
+      category &&
+      (manualLocation || coords) &&
+      (!price || !isNaN(Number(price)))
+    );
+  }, [imageUrl, title, category, manualLocation, coords, price]);
 
   const detectLocation = () => {
     if (!("geolocation" in navigator)) return;
@@ -38,7 +44,6 @@ export default function Sell() {
   };
 
   useEffect(() => {
-    // Try auto-detect silently on mount
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
@@ -48,10 +53,47 @@ export default function Sell() {
     }
   }, []);
 
-  const onPublish = (e: React.FormEvent) => {
+  const onPublish = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canPublish) return;
-    toast({ title: "Listing published", description: negotiable ? "Offer enabled: buyers can Make an Offer." : "Your listing is live." });
+
+    try {
+      // Compose the listing object
+      const listing = {
+        user_id: 1, // For MVP, hardcode or get from context if available
+        title,
+        description,
+        price_sek: Number(price),
+        condition: "good", // You can add a select for this if you want
+        category_id: 1, // You may want to map category string to an ID
+        city: manualLocation,
+        latitude: coords?.lat,
+        longitude: coords?.lng,
+        status: "published",
+        slug: title.toLowerCase().replace(/\s+/g, "-"),
+        canonical_url: "",
+        images: [
+          {
+            url_full: imageUrl,
+            url_card: imageUrl,
+            url_thumb: imageUrl,
+            blurhash: "",
+          },
+        ],
+      };
+
+      await createListing(listing);
+      toast({ title: "Listing published", description: "Your listing is live." });
+      // Optionally reset form
+      setTitle("");
+      setDescription("");
+      setImageUrl("");
+      setPrice("");
+      setManualLocation("");
+      setCoords(null);
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to publish listing." });
+    }
   };
 
   return (
@@ -60,12 +102,18 @@ export default function Sell() {
       <p className="mt-1 text-muted-foreground">Add photos and details in a few simple steps.</p>
 
       <form onSubmit={onPublish} className="mt-6 space-y-8">
-        {/* Step 1: Photos */}
+        {/* Step 1: Image URL */}
         <div>
-          <h2 className="text-lg font-semibold">1. Upload Photos</h2>
-          <p className="text-sm text-muted-foreground">Add multiple images. Rotate or crop if needed.</p>
+          <h2 className="text-lg font-semibold">1. Image URL</h2>
+          <p className="text-sm text-muted-foreground">Paste a direct image URL (e.g. from Unsplash or your own hosting).</p>
           <div className="mt-3">
-            <PhotoUploader value={images} onChange={setImages} />
+            <Input
+              value={imageUrl}
+              onChange={e => setImageUrl(e.target.value)}
+              placeholder="https://example.com/image.jpg"
+              required
+              aria-label="Image URL"
+            />
           </div>
         </div>
 
