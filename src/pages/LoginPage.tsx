@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { TextField, Button, Box, Typography, Alert } from "@mui/material";
 
@@ -8,6 +9,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,6 +22,9 @@ const LoginPage: React.FC = () => {
         password,
       });
       setSuccess("Login successful! Token: " + response.data.access_token);
+      setTimeout(() => {
+        navigate("/listings");
+      }, 1000);
     } catch (err: any) {
       setError(err.response?.data?.detail || "Login failed");
     } finally {
