@@ -12,10 +12,12 @@ import Shop from "./pages/Shop";
 import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 import Sell from "./pages/Sell";
 import Layout from "@/components/layout/Layout";
 import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 const queryClient = new QueryClient();
 
@@ -27,17 +29,20 @@ const App = () => (
       <BrowserRouter>
         <FavoritesProvider>
           <CartProvider>
-            <Routes>
-              <Route path="/" element={<Layout />}>
+            <AuthProvider>
+              <Routes>
+                <Route path="/" element={<Layout />}>
                 <Route index element={<Index />} />
                 <Route path="shop" element={<Shop />} />
                 <Route path="checkout" element={<Checkout />} />
                 <Route path="sell" element={<Sell />} />
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
+                <Route path="verify-email" element={<VerifyEmailPage />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
+            </AuthProvider>
           </CartProvider>
         </FavoritesProvider>
       </BrowserRouter>

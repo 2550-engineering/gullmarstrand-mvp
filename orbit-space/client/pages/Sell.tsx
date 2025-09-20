@@ -1,14 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import PhotoUploader, { UploadedImage } from "@/components/marketplace/PhotoUploader";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { CATEGORIES } from "@/lib/listings";
-import { useToast } from "@/hooks/use-toast";
+import { createListing } from "../api/listings"; // Import the new createListing function
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext"; // Import useAuth
 
 export default function Sell() {
   const [images, setImages] = useState<UploadedImage[]>([]);
@@ -20,7 +12,10 @@ export default function Sell() {
   const [delivery, setDelivery] = useState<"shipping" | "pickup">("pickup");
   const [manualLocation, setManualLocation] = useState("");
   const [coords, setCoords] = useState<{lat:number; lng:number} | null>(null);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth(); // Use the useAuth hook
 
   const canPublish = useMemo(() => {
     return images.length > 0 && title.trim().length > 2 && category && (manualLocation || coords) && (!price || !isNaN(Number(price)));
@@ -48,10 +43,59 @@ export default function Sell() {
     }
   }, []);
 
-  const onPublish = (e: React.FormEvent) => {
+  const onPublish = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canPublish) return;
-    toast({ title: "Listing published", description: negotiable ? "Offer enabled: buyers can Make an Offer." : "Your listing is live." });
+    if (!user || authLoading) {
+      toast({ title: "Authentication Error", description: "You must be logged in to create a listing.", variant: "destructive" });
+      return;
+    }
+    if (!canPublish) {
+      toast({ title: "Validation Error", description: "Please fill in all required fields and upload at least one image.", variant: "destructive" });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("category_id", category); // Assuming category is ID or can be mapped
+      formData.append("price_sek", price);
+      formData.append("negotiable", String(negotiable));
+      formData.append("city", manualLocation);
+      formData.append("delivery_option", delivery);
+      if (coords) {
+        formData.append("latitude", String(coords.lat));
+        formData.append("longitude", String(coords.lng));
+      }
+
+      images.forEach((image, index) => {
+        if (image.file) {
+          formData.append(`images`, image.file, image.file.name);
+        }
+      });
+
+      formData.append("user_id", String(user.id)); // Use actual user ID
+
+      await createListing(formData);
+      toast({ title: "Listing published", description: negotiable ? "Offer enabled: buyers can Make an Offer." : "Your listing is live." });
+      // Clear form or redirect
+      setImages([]);
+      setTitle("");
+      setDescription("");
+      setPrice("");
+      setNegotiable(false);
+      setDelivery("pickup");
+      setManualLocation("");
+      setCoords(null);
+      navigate('/shop'); // Redirect to shop page after successful listing
+
+    } catch (error) {
+      console.error("Failed to publish listing:", error);
+      toast({ title: "Publication Failed", description: "There was an error publishing your listing.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -156,7 +200,9 @@ export default function Sell() {
           <h2 className="text-lg font-semibold">7. Publish Listing</h2>
           <p className="text-sm text-muted-foreground">Review your details and publish when ready.</p>
           <div className="mt-4">
-            <Button type="submit" disabled={!canPublish}>Publish Listing</Button>
+            <Button type="submit" disabled={!canPublish || loading || authLoading}>
+              {loading || authLoading ? "Publishing..." : "Publish Listing"}
+            </Button>
           </div>
         </div>
       </form>
