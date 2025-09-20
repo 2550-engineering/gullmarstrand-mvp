@@ -13,6 +13,7 @@ import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Sell from "./pages/Sell";
+import ListingDetails from "./pages/ListingsDetails";
 import Layout from "@/components/layout/Layout";
 import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
@@ -35,6 +36,7 @@ const App = () => (
                 <Route path="sell" element={<Sell />} />
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
+                <Route path="/listing/:id" element={<ListingDetails />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>

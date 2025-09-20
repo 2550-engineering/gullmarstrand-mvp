@@ -4,6 +4,7 @@ import { Star, MapPin, Plus, Heart } from "lucide-react";
 import { Listing } from "@/lib/listings";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
+import { Link } from "react-router-dom";
 
 export function ListingCard({ item }: { item: Listing }) {
   const { addItem } = useCart();
@@ -27,58 +28,60 @@ export function ListingCard({ item }: { item: Listing }) {
   const fav = isFavorite(item.id);
 
   return (
-    <Card className="overflow-hidden bg-card/80 backdrop-blur-sm border-border/60">
-      <div className="relative aspect-[4/3] w-full overflow-hidden">
-        <img
-          src={
-            item.images && item.images[0]?.url_card
-              ? item.images[0].url_card
-              : "https://via.placeholder.com/300x180?text=No+Image"
-          }
-          alt={item.title}
-          className="h-full w-full object-cover transition-transform duration-300 will-change-transform hover:scale-105"
-          loading="lazy"
-        />
-        <button
-          type="button"
-          onClick={() => toggleFavorite(item.id)}
-          aria-label={fav ? `Unsave ${item.title}` : `Save ${item.title}`}
-          className="absolute right-2 top-2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-sm ring-1 ring-border backdrop-blur transition hover:bg-background"
-        >
-          <Heart className={fav ? "h-4 w-4 text-primary fill-current" : "h-4 w-4"} />
-        </button>
-      </div>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h3 className="text-base font-semibold leading-tight">{item.title}</h3>
-            <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-              {/* If you want to show a rating, you can calculate or fetch it */}
-              <span className="inline-flex items-center gap-1">
-                <Star className="h-4 w-4 text-primary" aria-hidden />
-                {/* No rating in backend, so you can remove or replace this */}
-                N/A
-              </span>
-              <span aria-hidden>•</span>
-              <span className="inline-flex items-center gap-1">
-                <MapPin className="h-4 w-4" aria-hidden />
-                {item.city ?? "Unknown"}
-              </span>
+    <Link to={`/listing/${item.id}`} className="block group">
+      <Card className="overflow-hidden bg-card/80 backdrop-blur-sm border-border/60 group-hover:shadow-lg transition-shadow">
+        <div className="relative aspect-[4/3] w-full overflow-hidden">
+          <img
+            src={
+              item.images && item.images[0]?.url_card
+                ? item.images[0].url_card
+                : "https://via.placeholder.com/300x180?text=No+Image"
+            }
+            alt={item.title}
+            className="h-full w-full object-cover transition-transform duration-300 will-change-transform hover:scale-105"
+            loading="lazy"
+          />
+          <button
+            type="button"
+            onClick={() => toggleFavorite(item.id)}
+            aria-label={fav ? `Unsave ${item.title}` : `Save ${item.title}`}
+            className="absolute right-2 top-2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-sm ring-1 ring-border backdrop-blur transition hover:bg-background"
+          >
+            <Heart className={fav ? "h-4 w-4 text-primary fill-current" : "h-4 w-4"} />
+          </button>
+        </div>
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="text-base font-semibold leading-tight">{item.title}</h3>
+              <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                {/* If you want to show a rating, you can calculate or fetch it */}
+                <span className="inline-flex items-center gap-1">
+                  <Star className="h-4 w-4 text-primary" aria-hidden />
+                  {/* No rating in backend, so you can remove or replace this */}
+                  N/A
+                </span>
+                <span aria-hidden>•</span>
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="h-4 w-4" aria-hidden />
+                  {item.city ?? "Unknown"}
+                </span>
+              </div>
+              <div className="mt-2 text-sm text-muted-foreground">
+                {item.city} • {item.condition}
+              </div>
             </div>
-            <div className="mt-2 text-sm text-muted-foreground">
-              {item.city} • {item.condition}
+            <div className="text-right">
+              <div className="text-lg font-semibold">{item.price_sek} SEK</div>
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-lg font-semibold">{item.price_sek} SEK</div>
+          <div className="mt-4">
+            <Button onClick={handleAdd} className="w-full" aria-label={`Add ${item.title} to cart`}>
+              <Plus className="h-4 w-4" /> Add to cart
+            </Button>
           </div>
-        </div>
-        <div className="mt-4">
-          <Button onClick={handleAdd} className="w-full" aria-label={`Add ${item.title} to cart`}>
-            <Plus className="h-4 w-4" /> Add to cart
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
